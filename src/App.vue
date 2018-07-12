@@ -12,6 +12,11 @@
           <input class="form-control" type="text" v-model="user.email">
         </div>
         <button class="btn btn-primary" @click="submit">Submit</button>
+        <hr>
+        <button class="btn btn-primary" @click="fetchData">Get Data</button>
+        <ul class="list-group">
+          <li class="list-group-item" v-for="user in users">{{ user.Username }} - {{ user.email }}</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -24,18 +29,39 @@
         user: {
           Username: '',
           email: ''
-        }
+        },
+        users: []
       };
     },
     methods: {
       submit() {
-        this.$http.post('https://vuejs-http-7d3b3.firebaseio.com/project.json', this.user)
+        // this.$http.post('project.json', this.user)
+        //   .then(response => {
+        //     console.log(response)
+        //   }, error => {
+        //     console.log(error);
+        //   });
+        this.resource.saveAlt(this.user);
+      },
+      fetchData() {
+        this.$http.get('project.json')
           .then(response => {
-            console.log(response)
-          }, error => {
-            console.log(error);
+            return response.json();
+          })
+          .then(data => {
+            const resultArray = [];
+            for (let key in data) {
+              resultArray.push(data[key]);
+            }
+            this.users = resultArray;
           });
       }
+    },
+    created() {
+      const customActions = {
+        saveAlt: {method: 'POST', url: 'alternative.json'}
+      };
+      this.resource = this.$resource('project.json', {}, customActions);
     }
   }
 </script>
